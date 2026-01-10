@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="text-center mb-10">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Take Attendance</h1>
+        <p class="text-gray-500">Upload a class photo or a short video clip to scan for attendees.</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <form action="/attendance" method="post" enctype="multipart/form-data" class="space-y-6" id="uploadForm">
+            
+            <div class="border-4 border-dashed border-blue-100 rounded-xl p-8 text-center hover:border-blue-300 transition relative" id="drop-area">
+                <input type="file" name="files" id="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,video/*" multiple required onchange="previewFiles(this)">
+                <div class="pointer-events-none">
+                    <i class="fa-solid fa-camera text-5xl text-blue-200 mb-4 block"></i>
+                    <span class="text-lg font-medium text-gray-700 block">Drop Images or Videos Here</span>
+                    <span class="text-sm text-gray-400">Supports multiple files (.jpg, .png, .mp4, .mov)</span>
+                </div>
+            </div>
+
+            <!-- Preview Grid -->
+            <div id="preview-grid" class="grid grid-cols-3 md:grid-cols-4 gap-4 hidden">
+                <!-- Previews injected here -->
+            </div>
+
+            <!-- Loading Indicator (Hidden initially) -->
+            <div id="loading" class="hidden text-center py-4">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                <p class="text-gray-600 font-medium">Analyzing biometrics...</p>
+                <p class="text-xs text-gray-400">This requires heavy computation.</p>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-indigo-600 text-white font-bold py-4 rounded-lg shadow-lg hover:bg-indigo-700 transition flex justify-center items-center gap-2">
+                <i class="fa-solid fa-bolt"></i> Process Attendance
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('uploadForm');
+    const loading = document.getElementById('loading');
+    const btn = document.getElementById('submitBtn');
+    const previewGrid = document.getElementById('preview-grid');
+
+    function previewFiles(input) {
+        previewGrid.innerHTML = ''; // Clear prev
+        if (input.files && input.files.length > 0) {
+            previewGrid.classList.remove('hidden');
+            
+            Array.from(input.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = "relative rounded-lg overflow-hidden h-24 bg-gray-100 shadow border";
+                    
+                    if (file.type.startsWith('video/')) {
+                         div.innerHTML = `<div class="flex items-center justify-center h-full text-gray-500"><i class="fa-solid fa-video text-2xl"></i></div>`;
+                    } else {
+                        div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover">`;
+                    }
+                    previewGrid.appendChild(div);
+                }
+                reader.readAsDataURL(file);
+            });
+            
+            // Update button text
+            btn.innerHTML = `<i class="fa-solid fa-bolt"></i> Process ${input.files.length} Files`;
+        }
+    }
+
+    form.addEventListener('submit', () => {
+        loading.classList.remove('hidden');
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        btn.disabled = true;
+        btn.innerHTML = 'Processing...';
+    });
+</script>
+{% endblock %}

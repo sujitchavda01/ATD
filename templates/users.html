@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Registered Users</h1>
+    <a href="/add_user" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">
+        <i class="fa-solid fa-plus mr-2"></i> Register New
+    </a>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+    {% for user in users %}
+    <div class="bg-white rounded-lg shadow p-4 text-center hover:shadow-lg transition">
+        <div class="w-24 h-24 mx-auto mb-4 relative rounded-full overflow-hidden border-4 border-gray-100">
+             <!-- In a real app we'd serve the actual image, but detailed paths might vary. 
+                  Displaying a placeholder or trying to link the saved file if possible. -->
+             <img src="{{ user.photo_url }}" alt="{{ user.name }}" class="w-full h-full object-cover">
+        </div>
+        <h3 class="font-bold text-gray-800 text-lg">{{ user.name }}</h3>
+        <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mb-1">{{ user.division }}</span>
+        <br>
+        <span class="text-xs text-gray-400">Registered</span>
+
+        <div class="mt-4 flex justify-center space-x-2">
+            <a href="/user/edit/{{ user.folder_name }}" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600 transition">
+                <i class="fa-solid fa-pen"></i> Edit
+            </a>
+            <a href="/user/delete/{{ user.folder_name }}" onclick="return confirm('Are you sure you want to delete {{ user.name }}?');" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition">
+                <i class="fa-solid fa-trash"></i>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Stat Cards -->
+    <div class="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500">
+        <div class="text-gray-500 text-sm font-bold uppercase">Total Users</div>
+        <div class="text-3xl font-bold text-gray-800">{{ total_users }}</div>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow border-l-4 border-green-500">
+        <div class="text-gray-500 text-sm font-bold uppercase">Total Sessions</div>
+        <div class="text-3xl font-bold text-gray-800">{{ total_sessions }}</div>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow border-l-4 border-purple-500">
+        <div class="text-gray-500 text-sm font-bold uppercase">Model</div>
+        <div class="text-xl font-bold text-gray-800">ArcFace</div>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow border-l-4 border-yellow-500">
+        <div class="text-gray-500 text-sm font-bold uppercase">Detector</div>
+        <div class="text-xl font-bold text-gray-800">RetinaFace</div>
+    </div>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="font-bold text-lg text-gray-800">Recent Attendance Sessions</h2>
+    </div>
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detected / Total</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Accuracy</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for log in recent_logs %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ log.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ 'bg-green-100 text-green-800' if log.type == 'image' else 'bg-indigo-100 text-indigo-800' }}">
+                        {{ log.type }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-bold">
+                    {{ log.detected_count }} / {{ log.total_users }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">High ({{ log.accuracy_model }})</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <a href="/attendance/result/{{ log._id }}" class="text-blue-600 hover:text-blue-900">View Report</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if not recent_logs %}
+    <div class="p-6 text-center text-gray-500">No sessions recorded yet. Start by taking attendance!</div>
+    {% endif %}
+</div>
+{% endblock %}

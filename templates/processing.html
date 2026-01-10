@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md overflow-hidden mt-10">
+    <div class="px-6 py-6 text-center">
+        <div class="mb-6">
+            <i class="fa-solid fa-gear fa-spin text-5xl text-blue-500"></i>
+        </div>
+        
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Processing Images...</h2>
+        <p class="text-gray-500 mb-6">Our dedicated workers are analyzing the photos. Please wait.</p>
+        
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 rounded-full h-4 mb-4 overflow-hidden">
+            <div id="progress-bar" class="bg-blue-600 h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+        
+        <p class="text-sm font-semibold text-gray-700">
+            <span id="completed-count">0</span> / <span id="total-count">0</span> Images Processed
+        </p>
+    </div>
+</div>
+
+<script>
+    const batchId = "{{ batch_id }}";
+    const statusUrl = `/attendance/status/${batchId}`;
+    
+    function checkStatus() {
+        fetch(statusUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'completed') {
+                    // Redirect to success page
+                    window.location.href = `/attendance/result/${data.result_id}`;
+                } else if (data.status === 'processing') {
+                    // Update UI
+                    document.getElementById('completed-count').innerText = data.processed;
+                    document.getElementById('total-count').innerText = data.total;
+                    const percent = (data.processed / data.total) * 100;
+                    document.getElementById('progress-bar').style.width = percent + "%";
+                    
+                    // Poll again
+                    setTimeout(checkStatus, 1000);
+                } else if (data.status === 'pending') {
+                    setTimeout(checkStatus, 1000);
+                } else {
+                    alert("Error processing batch!");
+                }
+            })
+            .catch(err => console.error("Polling error:", err));
+    }
+
+    // Start polling
+    setTimeout(checkStatus, 1000);
+</script>
+{% endblock %}

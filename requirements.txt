@@ -1,0 +1,9 @@
+deepface
+opencv-python
+pandas
+tf-keras
+fastapi
+uvicorn
+python-multipart
+pymongo
+jinja2

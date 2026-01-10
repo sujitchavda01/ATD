@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+        <h2 class="text-xl font-bold text-gray-800">Edit User</h2>
+        <p class="text-sm text-gray-500">Update profile for {{ user.name }}</p>
+    </div>
+    
+    <form action="/user/edit/{{ user.folder_name }}" method="post" enctype="multipart/form-data" class="p-6 space-y-4">
+        <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
+                Full Name
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                   id="name" name="name" type="text" value="{{ user.name }}" required>
+        </div>
+
+        <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="division">
+                Division / Class
+            </label>
+            <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                    id="division" name="division" required>
+                <option value="A" {% if user.division == 'A' %}selected{% endif %}>Division A</option>
+                <option value="B" {% if user.division == 'B' %}selected{% endif %}>Division B</option>
+                <option value="C" {% if user.division == 'C' %}selected{% endif %}>Division C</option>
+                <option value="Staff" {% if user.division == 'Staff' %}selected{% endif %}>Staff / Faculty</option>
+            </select>
+        </div>
+        
+        <div>
+            <label class="block text-gray-700 text-sm font-bold mb-2">
+                Current Photo
+            </label>
+            <div class="text-center mb-4">
+                 <img src="{{ user.photo_url }}" class="h-32 mx-auto rounded shadow-lg border-2 border-gray-200">
+            </div>
+
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="photo">
+                Update Photo (Optional)
+            </label>
+            <div class="flex items-center justify-center w-full">
+                <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
+                        <p class="text-sm text-gray-500"><span class="font-semibold">Click to update</span> or drag and drop</p>
+                        <p class="text-xs text-gray-500">JPG, PNG (Clear face)</p>
+                    </div>
+                    <input id="dropzone-file" name="photo" type="file" class="hidden" accept="image/*" onchange="previewImage(this)" />
+                </label>
+            </div>
+            
+            <!-- Preview Area -->
+            <div id="image-preview" class="mt-4 hidden text-center">
+                <p class="text-xs text-gray-500 mb-2">New Photo Selected:</p>
+                <img id="preview-img" src="#" alt="Preview" class="max-h-48 mx-auto rounded shadow-lg border-2 border-blue-200">
+            </div>
+        </div>
+
+        <div class="flex items-center justify-end mt-4 space-x-3">
+             <a href="/users" class="text-gray-600 hover:text-gray-800 font-medium text-sm">Cancel</a>
+             <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function previewImage(input) {
+        const preview = document.getElementById('image-preview');
+        const previewImg = document.getElementById('preview-img');
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                preview.classList.remove('hidden');
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+{% endblock %}
