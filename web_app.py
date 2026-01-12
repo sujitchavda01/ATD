@@ -41,10 +41,35 @@ app.mount("/dataset", StaticFiles(directory=MY_DB_FOLDER), name="dataset") # Ser
 templates = Jinja2Templates(directory="templates")
 
 # --- Database Setup ---
-client = MongoClient(DB_URI)
-db = client[DB_NAME]
+try:
+    client = MongoClient(DB_URI, serverSelectionTimeoutMS=2000)
+    client.server_info() # Trigger connection check
+    print(f"[*] Connected to MongoDB at {DB_URI}")
+    db = client[DB_NAME]
+except Exception as e:
+    print(f"[!] MongoDB Connection Failed: {e}")
+    print("[*] Switching to In-Memory Dummy Database (NO PERSISTENCE)")
+    from dummy_db import MockClient, sync_users_from_disk
+    client = MockClient(DB_URI)
+    db = client[DB_NAME]
+    
+    # Pre-populate Mock DB from disk so UI isn't empty
+    # We do this after assigning users_collection below
+    
 users_collection = db["users"]
 attendance_collection = db["attendance"]
+
+# If using Mock DB, sync users now
+if isinstance(client, (type(None), object)) and "MockClient" in str(type(client)): # Robust check or just flag
+     pass # handled below
+
+try:
+    from dummy_db import MockClient
+    if isinstance(client, MockClient):
+        sync_users_from_disk(users_collection, MY_DB_FOLDER)
+except:
+    pass
+
 
 # --- Memory Cache for Real-Time Video ---
 cached_embeddings = [] # List of {"name": str, "embedding": list}

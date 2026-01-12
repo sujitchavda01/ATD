@@ -21,12 +21,12 @@ def check_mongo():
         print("❌ Error: Could not connect to MongoDB.")
         print("Please ensure MongoDB is installed and running on localhost:27017")
         print(f"Details: {e}")
-        return False
+        print("[!] WARNING: MongoDB not found. Application will use IN-MEMORY DUMMY DATABASE.")
+        return True # Allow fallback
 
 def main():
-    if not check_mongo():
-        print("Cannot start application without database.")
-        return
+    check_mongo() # check but don't stop
+
 
     print("Starting Web Application...")
     # Run the uvicorn server
